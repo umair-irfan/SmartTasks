@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 public enum CoordinatorError: Error {
     case unknown
@@ -13,11 +14,10 @@ public enum CoordinatorError: Error {
 
 open class Coordinator<ResultType>: NSObject {
     
-    typealias CompletionHandler = (Result<ResultType, CoordinatorError>) -> Void
-    
     private let identifier = UUID()
     private var childCoordinators = [UUID: Any]()
-    
+    private var cancellables = Set<AnyCancellable>()
+
     public override init() {}
 
     private func store<T>(coordinator: Coordinator<T>) {
@@ -30,22 +30,26 @@ open class Coordinator<ResultType>: NSObject {
 
     // MARK: - Coordination
 
-    public func coordinate<T>(
-        to coordinator: Coordinator<T>,
-        completion: @escaping (Result<T, CoordinatorError>) -> Void) {
-            
+    @MainActor
+    public func coordinate<T>(to coordinator: Coordinator<T>) -> AnyPublisher<T, CoordinatorError> {
         store(coordinator: coordinator)
-        coordinator.start { [weak self] result in
-            self?.free(coordinator: coordinator)
-            completion(result)
-        }
+
+        return coordinator
+            .start()
+            .handleEvents(receiveCompletion: { [weak self] _ in
+                self?.free(coordinator: coordinator)
+            })
+            .eraseToAnyPublisher()
     }
 
-    open func start(completion: @escaping (Result<ResultType, CoordinatorError>) -> Void) {
+    @MainActor
+    open func start() -> AnyPublisher<ResultType, CoordinatorError> {
         fatalError("Start method should be implemented.")
     }
 
     open func freeAll() {
         childCoordinators.removeAll()
+        cancellables.removeAll()
     }
 }
+
