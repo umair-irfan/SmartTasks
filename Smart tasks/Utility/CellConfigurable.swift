@@ -7,13 +7,13 @@
 
 import UIKit
 
-protocol CellConfigurable: Hashable {
+protocol CellConfigurable: Hashable, Sendable {
     var id: UUID { get }
     var reuseIdentifier: String { get }
     func configure(cell: UITableViewCell)
 }
 
-struct AnyCellConfigurable: Hashable {
+struct AnyCellConfigurable: Hashable, @unchecked Sendable {
     let id: UUID
     let identifier: String
     let model: Any

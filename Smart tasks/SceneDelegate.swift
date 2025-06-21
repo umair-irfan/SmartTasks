@@ -20,15 +20,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         //MARK: Custom Entry Point for Application
-        // Navigations are managed through Co-ordinators(Combine)
-        // Dependecies are Injected in Co-ordinators via DIC
+        /// ✅ Dependecies are Injected in Co-ordinators via DIC
+        /// ✅ Dependecy Inversion using MocKTaskRepository()
+        let tasks: TaskRepositoryType = TaskRepository()
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        // ✅ Initialize and start AppCoordinator
-        let coordinator = AppCoordinator(window: window)
+        // Navigations are managed through Co-ordinators(Combine)
+        /// ✅ Initialize and start AppCoordinator
+        let coordinator = AppCoordinator(window: window, tasks)
         self.appCoordinator = coordinator
         
+        /// ✅ Start AppCoordinator
         coordinator.start()
             .sink(receiveCompletion: { completion in
                 if case .failure(let error) = completion {

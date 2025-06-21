@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		805AE52D2E06873A003E1975 /* Exceptions for "Smart tasks" folder in "Smart tasks" target */ = {
+		805AE6352E06FD41003E1975 /* Exceptions for "Smart tasks" folder in "Smart tasks" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -40,14 +40,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		805AE5072E068735003E1975 /* Smart tasks */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				805AE52D2E06873A003E1975 /* Exceptions for "Smart tasks" folder in "Smart tasks" target */,
-			);
-			path = "Smart tasks";
-			sourceTree = "<group>";
-		};
 		805AE51E2E06873A003E1975 /* Smart tasksTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Smart tasksTests";
@@ -56,6 +48,14 @@
 		805AE5282E06873A003E1975 /* Smart tasksUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Smart tasksUITests";
+			sourceTree = "<group>";
+		};
+		805AE6182E06FD3F003E1975 /* Smart tasks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				805AE6352E06FD41003E1975 /* Exceptions for "Smart tasks" folder in "Smart tasks" target */,
+			);
+			path = "Smart tasks";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,7 +88,7 @@
 		805AE4FC2E068735003E1975 = {
 			isa = PBXGroup;
 			children = (
-				805AE5072E068735003E1975 /* Smart tasks */,
+				805AE6182E06FD3F003E1975 /* Smart tasks */,
 				805AE51E2E06873A003E1975 /* Smart tasksTests */,
 				805AE5282E06873A003E1975 /* Smart tasksUITests */,
 				805AE5062E068735003E1975 /* Products */,
@@ -121,7 +121,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				805AE5072E068735003E1975 /* Smart tasks */,
+				805AE6182E06FD3F003E1975 /* Smart tasks */,
 			);
 			name = "Smart tasks";
 			packageProductDependencies = (

@@ -11,9 +11,11 @@ import Combine
 final class TaskCoordinator: Coordinator<Void> {
 
     private let navigation: UINavigationController?
+    private(set) var repo: TaskRepositoryType!
 
-    init(root: UINavigationController) {
+    init(root: UINavigationController,_ taskRepository: TaskRepositoryType) {
         self.navigation = root
+        self.repo = taskRepository
     }
 
     override func start() -> AnyPublisher<Void, CoordinatorError> {
@@ -23,14 +25,12 @@ final class TaskCoordinator: Coordinator<Void> {
                 promise(.failure(.unknown))
                 return
             }
-            
-            let viewModel: TaskViewModelType = TaskViewModel()
+            //MARK: ✅ Task Dependecy Injected(into: ViewModel)
+            let viewModel: TaskViewModelType = TaskViewModel(task: self.repo)
             let vc = TaskViewController()
             vc.viewModel = viewModel
             NavigationControllerFactory.configureNavigationItem(for: vc, title: "\(Date())")
-            
             self.navigation?.pushViewController(vc, animated: true)
-            
             //promise(.success(()))
         }
         .eraseToAnyPublisher()
