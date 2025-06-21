@@ -1,7 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,10 +14,33 @@
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="luanch-screen-logo" translatesAutoresizingMaskIntoConstraints="NO" id="3tk-cT-XSe">
+                                <rect key="frame" x="104" y="183" width="185" height="165"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="165" id="1Rn-pw-MnR"/>
+                                    <constraint firstAttribute="width" constant="185" id="Kib-bh-72u"/>
+                                </constraints>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" image="luanch-screen-image" translatesAutoresizingMaskIntoConstraints="NO" id="VM6-6a-efr">
+                                <rect key="frame" x="50" y="552" width="293" height="300"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="300" id="irE-Tq-DmP"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" name="primary-background"/>
+                        <constraints>
+                            <constraint firstItem="3tk-cT-XSe" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="65" id="BmE-Sy-b0Y"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="VM6-6a-efr" secondAttribute="trailing" constant="50" id="CBP-W7-WTm"/>
+                            <constraint firstItem="VM6-6a-efr" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="HIc-kN-tVC"/>
+                            <constraint firstItem="VM6-6a-efr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="50" id="hZH-HF-UBS"/>
+                            <constraint firstAttribute="bottom" secondItem="VM6-6a-efr" secondAttribute="bottom" id="hbG-XF-FMZ"/>
+                            <constraint firstItem="3tk-cT-XSe" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="tdv-50-guA"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -22,4 +48,11 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="luanch-screen-image" width="205" height="199"/>
+        <image name="luanch-screen-logo" width="165" height="169"/>
+        <namedColor name="primary-background">
+            <color red="1" green="0.87058823529411766" blue="0.38039215686274508" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
 </document>
