@@ -9,6 +9,8 @@ import UIKit
 //MARK: Input
 protocol TaskTaskViewModelInput {
     func loadData()
+    var onTapNextDay: SimpleCallback? { get set }
+    var onTapPrevioussDay: SimpleCallback? { get set }
 }
 
 //MARK: Output
@@ -35,6 +37,10 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         set { }
     }
     
+    //MARK: Input
+    var onTapNextDay: SimpleCallback?
+    var onTapPrevioussDay: SimpleCallback?
+    
     //MARK: Output
     var onUpdate: SimpleCallback?
     var showEmptyView: SimpleCallback?
@@ -43,6 +49,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     init(task: TaskRepositoryType) {
         self.repo = task
+        processDaySelection()
     }
     
     func loadData() {
@@ -64,6 +71,16 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
             case .failure(_):
                 print("Failure")
             }
+        }
+    }
+    
+    private func processDaySelection() {
+        onTapNextDay = {
+            debugPrint("Next Day")
+        }
+        
+        onTapPrevioussDay = {
+            debugPrint("Previous Day")
         }
     }
     

@@ -30,12 +30,16 @@ final class TaskCoordinator: Coordinator<Void> {
             let vc = TaskViewController()
             vc.viewModel = viewModel
             let date = Date()
-            let rightButton = UIBarButtonItem(image:  UIImage(named: "right-arrow"), style: .plain, target: nil, action: nil)
+            let rightButton = UIBarButtonItem(image:  UIImage(named: "right-arrow"),
+                                              style: .plain, target: nil, action: nil)
+            rightButton.actionHandler = {
+                viewModel.input.onTapNextDay?()
+            }
             NavigationControllerFactory.configureNavigationItem(for: vc, title: "\(date)",
                                                                 showBackButton: true,
                                                                 backButtonImage: UIImage(named: "left-arrow"),
                                                                 onBack: {
-                
+                viewModel.input.onTapPrevioussDay?()
             }, rightButton: rightButton)
             self.navigation?.pushViewController(vc, animated: true)
             viewModel.output.navigateToDetailView = { [unowned self] task  in
