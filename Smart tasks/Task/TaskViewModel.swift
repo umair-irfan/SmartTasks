@@ -14,6 +14,7 @@ protocol TaskTaskViewModelInput {
 //MARK: Output
 protocol TaskTaskViewModelOutput {
     var onUpdate: SimpleCallback? { get set }
+    var showEmptyView: SimpleCallback? { get set }
     func defaultSnapshot()-> DataSnapshot
     var navigateToDetailView: DemoItemCallback? { get set }
 }
@@ -36,6 +37,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     //MARK: Output
     var onUpdate: SimpleCallback?
+    var showEmptyView: SimpleCallback?
     var navigateToDetailView: DemoItemCallback?
 
     
@@ -47,13 +49,18 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         repo.fetchTasks { resposse in
             switch resposse {
             case .success(let resp):
-                self.items = resp.tasks.map {
-                    let demoItem = DemoItem(title: $0.title,
-                                            dueDate: $0.dueDate ?? "",
-                                            daysLeft: self.calculateDaysLeft(from: $0.dueDate))
-                    return AnyCellConfigurable(demoItem)
+                if resp.tasks.isEmpty {
+                    self.showEmptyView?()
+                } else {
+                    
+                    self.items = resp.tasks.map {
+                        let demoItem = DemoItem(title: $0.title,
+                                                dueDate: $0.dueDate ?? "",
+                                                daysLeft: self.calculateDaysLeft(from: $0.dueDate))
+                        return AnyCellConfigurable(demoItem)
+                    }
+                    self.onUpdate?()
                 }
-                self.onUpdate?()
             case .failure(_):
                 print("Failure")
             }

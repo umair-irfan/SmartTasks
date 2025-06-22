@@ -28,8 +28,13 @@ class TaskViewController: UIViewController {
         //Bind Data Source
         viewModel.output.onUpdate = { [weak self] in
             guard let self = self else { return }
+            self.taskView.tableView.restore()
             self.taskView.dataSource.apply(self.viewModel.output.defaultSnapshot(),
                                                     animatingDifferences: true)
+        }
+        viewModel.output.showEmptyView = { [weak self] in
+            guard let self = self else { return }
+            self.taskView.tableView.showEmptyListView(imageName: "empty-view-image", message: "No tasks for today!")
         }
     }
 }
