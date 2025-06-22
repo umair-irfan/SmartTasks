@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         //MARK: Custom Entry Point for Application
         /// ✅ Dependecies are Injected in Co-ordinators via DIC
         /// ✅ Dependecy Inversion using MocKTaskRepository()
-        let tasks: TaskRepositoryType = TaskRepository()
+        let tasks: TaskRepositoryType = MockTaskRepository()
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         

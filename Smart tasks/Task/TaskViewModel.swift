@@ -5,12 +5,12 @@
 //  Created by Umair on 21/06/2025.
 //
 
-import Combine
-
+//MARK: Input
 protocol TaskTaskViewModelInput {
-    func loadData(forceLoad: Bool)
+    func loadData()
 }
 
+//MARK: Output
 protocol TaskTaskViewModelOutput {
     var onUpdate: SimpleCallback? { get set }
     func defaultSnapshot()-> DataSnapshot
@@ -40,19 +40,18 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         self.repo = task
     }
     
-    func loadData(forceLoad: Bool = true) {
-        
+    func loadData() {
         repo.fetchTasks { resposse in
             switch resposse {
             case .success(let resp):
                 self.items = resp.tasks.map {
                     AnyCellConfigurable(DemoItem(name: $0.title))
                 }
+                self.onUpdate?()
             case .failure(_):
                 print("Failure")
             }
         }
-        self.onUpdate?()
     }
 
     func defaultSnapshot() -> DataSnapshot {

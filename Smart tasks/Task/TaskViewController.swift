@@ -16,11 +16,9 @@ class TaskViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         view.backgroundColor = AppColor.background.color
-        DispatchQueue.main.async {
-            self.taskView.setup(in: self.view)
-            self.bindViewModel()
-            self.viewModel.input.loadData(forceLoad: true)
-        }
+        self.taskView.setup(in: self.view)
+        self.bindViewModel()
+        self.viewModel.input.loadData()
     }
     
     private func bindViewModel() {
