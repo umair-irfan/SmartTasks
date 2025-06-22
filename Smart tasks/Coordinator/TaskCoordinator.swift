@@ -26,19 +26,35 @@ final class TaskCoordinator: Coordinator<Void> {
                 return
             }
             //MARK: ✅ Task Dependecy Injected(into: ViewModel)
-            let viewModel: TaskViewModelType = TaskViewModel(task: self.repo)
+            var viewModel: TaskViewModelType = TaskViewModel(task: self.repo)
             let vc = TaskViewController()
             vc.viewModel = viewModel
-            NavigationControllerFactory.configureNavigationItem(for: vc, title: "\(Date())")
+            let date = Date()
+            let rightButton = UIBarButtonItem(image:  UIImage(named: "right-arrow"), style: .plain, target: nil, action: nil)
+            NavigationControllerFactory.configureNavigationItem(for: vc, title: "\(date)",
+                                                                showBackButton: true,
+                                                                backButtonImage: UIImage(named: "left-arrow"),
+                                                                onBack: {
+                
+            }, rightButton: rightButton)
             self.navigation?.pushViewController(vc, animated: true)
-            //promise(.success(()))
+            viewModel.output.navigateToDetailView = { [unowned self] task  in
+                self.navigateToDetailView(task.title)
+            }
         }
         .eraseToAnyPublisher()
     }
 
     
     func navigateToDetailView(_ task: String) {
-        //let detailVC = DetailViewController(task: task)
-        //navigation.pushViewController(detailVC, animated: true)
+        let viewModel: DetailViewModelType = DetailViewModel()
+        let detailVC = DetailViewController()
+        detailVC.viewModel = viewModel
+        NavigationControllerFactory.configureNavigationItem(for: detailVC, title: "Task Detail",
+                                                            showBackButton: true,
+                                                            backButtonImage: UIImage(named: "left-arrow")) {
+            self.navigation?.popViewController(animated: true)
+        }
+        navigation?.pushViewController(detailVC, animated: true)
     }
 }
