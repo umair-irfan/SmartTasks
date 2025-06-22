@@ -21,6 +21,7 @@ final class TaskView {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(TaskCell.self, forCellReuseIdentifier: TaskCell.identifier)
         tableView.separatorStyle = .none
+        tableView.backgroundColor = AppColor.background.color
         return tableView
     }()
     
@@ -33,8 +34,8 @@ final class TaskView {
     @MainActor
     func setupConstraints() {
         tableView
-            .alignEdgeWithSuperviewSafeArea(.top)
-            .alignEdgesWithSuperview([.left, .right], constant: 20)
+            .alignEdgeWithSuperviewSafeArea(.top, constant: 15)
+            .alignEdgesWithSuperview([.left, .right], constant: 15)
             .alignEdgeWithSuperviewSafeArea(.bottom)
     }
 }
