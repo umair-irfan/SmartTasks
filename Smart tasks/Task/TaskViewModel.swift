@@ -15,6 +15,7 @@ protocol TaskTaskViewModelInput {
 protocol TaskTaskViewModelOutput {
     var onUpdate: SimpleCallback? { get set }
     func defaultSnapshot()-> DataSnapshot
+    var navigateToDetailView: DemoItemCallback? { get set }
 }
 
 protocol TaskViewModelType {
@@ -35,6 +36,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     //MARK: Output
     var onUpdate: SimpleCallback?
+    var navigateToDetailView: DemoItemCallback?
 
     
     init(task: TaskRepositoryType) {

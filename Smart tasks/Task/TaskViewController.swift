@@ -23,7 +23,7 @@ class TaskViewController: UIViewController {
     
     private func bindViewModel() {
         
-        //taskView.tableView.delegate = self
+        taskView.tableView.delegate = self
         
         //Bind Data Source
         viewModel.output.onUpdate = { [weak self] in
@@ -31,6 +31,22 @@ class TaskViewController: UIViewController {
             self.taskView.dataSource.apply(self.viewModel.output.defaultSnapshot(),
                                                     animatingDifferences: true)
         }
+    }
+}
+
+extension TaskViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard let item = taskView.dataSource.itemIdentifier(for: indexPath) else {
+            return
+        }
+        
+        if let task = item.model as? DemoItem {
+            viewModel.output.navigateToDetailView?(task)
+        }
+        
     }
 }
 

@@ -40,6 +40,7 @@ final class TaskCell: UITableViewCell {
         let label = UILabel()
         label.textColor = AppColor.primaryText.color
         label.font = AppFont.bold.getFont(.h2)
+        label.numberOfLines = 3
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

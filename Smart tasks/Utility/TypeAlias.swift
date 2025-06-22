@@ -10,4 +10,5 @@ import UIKit
 typealias DataSnapshot = NSDiffableDataSourceSnapshot<TaskView.Section, AnyCellConfigurable>
 typealias LoadingCallback = ((Bool) -> Void)
 typealias SimpleCallback = (() -> Void)
+typealias DemoItemCallback = ((DemoItem) -> Void)
 typealias CoordinatorCompletion = (Result<Void, CoordinatorError>) -> Void
