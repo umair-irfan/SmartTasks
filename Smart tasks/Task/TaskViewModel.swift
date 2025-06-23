@@ -79,17 +79,27 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                     self.items.send([])
                 } else {
                     self.tasks = response.tasks
-                    let mapped = response.tasks.map {
-                        let demoItem = DemoItem(taskId: $0.id,
-                                                title: $0.title,
-                                                dueDate: $0.dueDate ?? "",
-                                                daysLeft: $0.calculateDaysLeft())
-                        return AnyCellConfigurable(demoItem)
-                    }
-                    self.items.send(mapped)
+                    self.items.send(prioritiseTasks())
                 }
             })
             .store(in: &cancellables)
+    }
+    
+    private func prioritiseTasks() -> [AnyCellConfigurable] {
+        return tasks.sorted {
+            if let firstTaskPriority = $0.priority,
+               let secondTaskPriority = $1.priority {
+                return firstTaskPriority == secondTaskPriority ?
+                $0.dueDate ?? "" < $1.dueDate ?? "" : firstTaskPriority > secondTaskPriority
+            }
+            return 1 > 0
+        }.map {
+            let demoItem = DemoItem(taskId: $0.id,
+                                    title: $0.title,
+                                    dueDate: $0.dueDate ?? "",
+                                    daysLeft: $0.calculateDaysLeft())
+            return AnyCellConfigurable(demoItem)
+        }
     }
     
     private func bindDetailNavigation() {
@@ -108,34 +118,14 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         onTapNextDay
             .sink { [weak self] in
                 guard let self = self else { return }
-                if $0 {
-                    let mapped = self.tasks.map {
-                        let demoItem = DemoItem(taskId: $0.id,
-                                                title: $0.title,
-                                                dueDate: $0.dueDate ?? "",
-                                                daysLeft: $0.calculateDaysLeft())
-                        return AnyCellConfigurable(demoItem)}
-                    self.items.send(mapped)
-                } else {
-                    self.items.send([])
-                }
+                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
             }
             .store(in: &cancellables)
         
         onTapPrevioussDay
             .sink { [weak self] in
                 guard let self = self else { return }
-                if $0 {
-                    let mapped = self.tasks.map {
-                        let demoItem = DemoItem(taskId: $0.id,
-                                                title: $0.title,
-                                                dueDate: $0.dueDate ?? "",
-                                                daysLeft: $0.calculateDaysLeft())
-                        return AnyCellConfigurable(demoItem)}
-                    self.items.send(mapped)
-                } else {
-                    self.items.send([])
-                }
+                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
             }
             .store(in: &cancellables)
     }
