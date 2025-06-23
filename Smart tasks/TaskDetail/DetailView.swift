@@ -19,9 +19,11 @@ final class DetailView {
     public lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        //tableView.register(TaskCell.self, forCellReuseIdentifier: TaskCell.identifier)
+        tableView.register(DetailsCell.self, forCellReuseIdentifier: DetailsCell.identifier)
         tableView.separatorStyle = .none
         tableView.backgroundColor = AppColor.background.color
+        tableView.estimatedRowHeight = 150
+        tableView.rowHeight = UITableView.automaticDimension
         return tableView
     }()
     

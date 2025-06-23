@@ -10,8 +10,8 @@ protocol DetailViewModelInput {
 }
 
 protocol DetailViewModelOutput {
-    
-    
+    var onUpdate: SimpleCallback? { get set }
+    func defaultSnapshot() -> DetailSnapshot
 }
 
 protocol DetailViewModelType {
@@ -21,6 +21,8 @@ protocol DetailViewModelType {
 
 class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewModelType {
     
+    private(set) var detailItem: [AnyCellConfigurable] = []
+    private(set) var task: Task
     
     var input: DetailViewModelInput { self }
     var output:  DetailViewModelOutput {
@@ -28,12 +30,28 @@ class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewMo
         set { }
     }
     
-    init() {
-        
+    //MARK: Output
+    var onUpdate: SimpleCallback?
+    
+    init(task: Task) {
+        self.task = task
     }
     
     func loadData() {
-        
+        self.detailItem = [
+            AnyCellConfigurable(DetailItem(title: task.title,
+                                           dueDate: task.dueDate ?? "",
+                                           daysLeft: task.targetDate,
+                                           description: task.description))
+        ]
+        self.onUpdate?()
+    }
+    
+    func defaultSnapshot() -> DetailSnapshot {
+        var snapshot = DetailSnapshot()
+        snapshot.appendSections([.Main])
+        snapshot.appendItems(detailItem, toSection: .Main)
+        return snapshot
     }
     
 }

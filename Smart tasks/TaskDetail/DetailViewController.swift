@@ -23,11 +23,11 @@ class DetailViewController: UIViewController {
     
     private func bindViewModel() {
         //Bind Data Source
-//        viewModel.output.onUpdate = { [weak self] in
-//            guard let self = self else { return }
-//            self.detailView.dataSource.apply(self.viewModel.output.defaultSnapshot(),
-//                                                    animatingDifferences: true)
-//        }
+        viewModel.output.onUpdate = { [weak self] in
+            guard let self = self else { return }
+            self.detailView.dataSource.apply(self.viewModel.output.defaultSnapshot(),
+                                                    animatingDifferences: true)
+        }
     }
 }
 

@@ -30,7 +30,7 @@ protocol LanguageConditionable {
 
 extension LanguageConditionable {
     func getLanguage() -> Language {
-        guard let lang = Bundle.main.preferredLocalizations.first else {
+        guard let _ = Bundle.main.preferredLocalizations.first else {
             return .English
         }
         return .English

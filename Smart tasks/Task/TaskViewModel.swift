@@ -18,7 +18,8 @@ protocol TaskTaskViewModelOutput {
     var onUpdate: SimpleCallback? { get set }
     var showEmptyView: SimpleCallback? { get set }
     func defaultSnapshot()-> DataSnapshot
-    var navigateToDetailView: DemoItemCallback? { get set }
+    var onTapTaskDetail: DemoItemCallback? { get set }
+    var navigateToDetailView: NavigateToDetail? { get set }
 }
 
 protocol TaskViewModelType {
@@ -30,6 +31,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     private(set) var repo: TaskRepositoryType!
     private(set) var items: [AnyCellConfigurable] = []
+    private var tasks: [Task] = []
     
     var input: TaskTaskViewModelInput { self }
     var output:  TaskTaskViewModelOutput {
@@ -44,12 +46,14 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     //MARK: Output
     var onUpdate: SimpleCallback?
     var showEmptyView: SimpleCallback?
-    var navigateToDetailView: DemoItemCallback?
+    var onTapTaskDetail: DemoItemCallback?
+    var navigateToDetailView: NavigateToDetail?
 
     
     init(task: TaskRepositoryType) {
         self.repo = task
         processDaySelection()
+        processTaskSelection()
     }
     
     func loadData() {
@@ -59,9 +63,10 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                 if resp.tasks.isEmpty {
                     self.showEmptyView?()
                 } else {
-                    
+                    self.tasks = resp.tasks
                     self.items = resp.tasks.map {
-                        let demoItem = DemoItem(title: $0.title,
+                        let demoItem = DemoItem(taskId: $0.id,
+                                                title: $0.title,
                                                 dueDate: $0.dueDate ?? "",
                                                 daysLeft: self.calculateDaysLeft(from: $0.dueDate))
                         return AnyCellConfigurable(demoItem)
@@ -71,6 +76,16 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
             case .failure(_):
                 print("Failure")
             }
+        }
+    }
+    
+    private func processTaskSelection() {
+        onTapTaskDetail = { task in
+            let selected = self.tasks.filter {
+                return task.taskId == $0.id
+            }.first
+            guard let selected else { return }
+            self.navigateToDetailView?(selected)
         }
     }
     

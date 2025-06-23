@@ -19,7 +19,7 @@ public struct DemoItem: Hashable, @preconcurrency CellConfigurable {
         guard let cell = cell as? TaskCell else { return }
         cell.configure(with: self)
     }
-    
+    let taskId: String
     let title: String
     let dueDate: String
     let daysLeft: String

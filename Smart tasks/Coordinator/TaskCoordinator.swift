@@ -49,13 +49,13 @@ final class TaskCoordinator: Coordinator<Void> {
         }, rightButton: rightButton)
         self.navigation?.pushViewController(vc, animated: true)
         viewModel.output.navigateToDetailView = { [unowned self] task  in
-            self.navigateToDetailView(task.title)
+            self.navigateToDetailView(task)
         }
     }
 
     
-    private func navigateToDetailView(_ task: String) {
-        let viewModel: DetailViewModelType = DetailViewModel()
+    private func navigateToDetailView(_ task: Task) {
+        let viewModel: DetailViewModelType = DetailViewModel(task: task)
         let detailVC = DetailViewController()
         detailVC.viewModel = viewModel
         NavigationControllerFactory.configureNavigationItem(for: detailVC, title: "Task Detail",

@@ -49,7 +49,7 @@ extension TaskViewController: UITableViewDelegate {
         }
         
         if let task = item.model as? DemoItem {
-            viewModel.output.navigateToDetailView?(task)
+            viewModel.output.onTapTaskDetail?(task)
         }
         
     }

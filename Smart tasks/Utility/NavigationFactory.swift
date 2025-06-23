@@ -36,7 +36,7 @@ class NavigationControllerFactory {
                 withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
             )
             let backButton = UIBarButtonItem(image: backImage, style: .plain, target: nil, action: nil)
-            backButton.actionHandler = onBack // see UIBarButtonItem+ActionHandler extension below
+            backButton.actionHandler = onBack 
             viewController.navigationItem.leftBarButtonItem = backButton
         } else {
             viewController.navigationItem.leftBarButtonItem = nil
@@ -51,6 +51,10 @@ class NavigationControllerFactory {
         appearance.configureWithTransparentBackground()
         appearance.backgroundColor = .clear
         appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [
+            .foregroundColor: AppColor.white.color,
+            .font: AppFont.bold.getFont(.h2)
+        ]
         
         navigationController.navigationBar.standardAppearance = appearance
         navigationController.navigationBar.scrollEdgeAppearance = appearance
