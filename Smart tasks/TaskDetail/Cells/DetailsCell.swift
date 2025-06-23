@@ -35,7 +35,7 @@ class DetailsCell: UITableViewCell {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "detail-background")
         imageView.contentMode = .scaleToFill
-        imageView.layer.cornerRadius = 16
+        imageView.layer.cornerRadius = 5
         imageView.clipsToBounds = true
         return imageView
     }()

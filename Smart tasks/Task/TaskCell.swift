@@ -30,7 +30,7 @@ final class TaskCell: UITableViewCell {
     private let cardView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 8
+        view.layer.cornerRadius = 5
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -151,10 +151,10 @@ final class TaskCell: UITableViewCell {
             horizontalStack.addArrangedSubview(rightStack)
 
             NSLayoutConstraint.activate([
-                cardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+                cardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
                 cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
                 cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-                cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+                cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
 
                 title.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
                 title.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),

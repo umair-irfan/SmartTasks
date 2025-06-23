@@ -6,19 +6,24 @@
 //
 
 import UIKit
+import Combine
 
 class TaskViewController: UIViewController {
    
     private var taskView = TaskView()
     var viewModel: TaskViewModelType!
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        setupView()
+        bindViewModel()
+        viewModel.input.loadData()
+    }
+    
+    private func setupView() {
         view.backgroundColor = AppColor.background.color
-        self.taskView.setup(in: self.view)
-        self.bindViewModel()
-        self.viewModel.input.loadData()
+        taskView.setup(in: view)
     }
     
     private func bindViewModel() {
@@ -26,18 +31,19 @@ class TaskViewController: UIViewController {
         taskView.tableView.delegate = self
         
         //Bind Data Source
-        viewModel.output.onUpdate = { [weak self] in
-            guard let self = self else { return }
-            self.taskView.dataSource.apply(self.viewModel.output.defaultSnapshot(),
-                                                    animatingDifferences: true)
-            self.taskView.tableView.restore()
-        }
-        viewModel.output.showEmptyView = { [weak self] in
-            guard let self = self else { return }
-            self.taskView.dataSource.apply(self.viewModel.output.emptySnapshot(),
-                                                    animatingDifferences: true)
-            self.taskView.tableView.showEmptyListView(imageName: "empty-view-image", message: "No tasks for today!")
-        }
+        viewModel.output.snapshotPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] snapshot in
+                guard let self = self else { return }
+                if snapshot.itemIdentifiers.isEmpty {
+                    self.taskView.tableView.showEmptyListView(imageName: "empty-view-image", message: "No tasks for today!")
+                    self.taskView.dataSource.apply(snapshot, animatingDifferences: true)
+                    return
+                }
+                self.taskView.dataSource.apply(snapshot, animatingDifferences: true)
+                self.taskView.tableView.restore()
+            }
+            .store(in: &cancellables)
     }
 }
 

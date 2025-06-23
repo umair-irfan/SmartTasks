@@ -10,18 +10,15 @@ import Combine
 //MARK: Input
 protocol TaskTaskViewModelInput {
     func loadData()
-    var onTapNextDay: LoadingCallback? { get set }
-    var onTapPrevioussDay: LoadingCallback? { get set }
+    var onTapNextDaySubject: PassthroughSubject<Bool, Never> { get }
+    var onTapPreviousDaySubject: PassthroughSubject<Bool, Never> { get }
 }
 
 //MARK: Output
 protocol TaskTaskViewModelOutput {
-    var onUpdate: SimpleCallback? { get set }
-    var showEmptyView: SimpleCallback? { get set }
-    func defaultSnapshot()-> DataSnapshot
+    var snapshotPublisher: AnyPublisher<DataSnapshot, Never> { get }
     var onTapTaskDetail: DemoItemCallback? { get set }
     var navigateToDetailView: NavigateToDetail? { get set }
-    func emptySnapshot() -> DataSnapshot
 }
 
 protocol TaskViewModelType {
@@ -32,8 +29,6 @@ protocol TaskViewModelType {
 class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewModelType {
     
     private(set) var repo: TaskRepositoryType!
-    @Published private(set) var items: [AnyCellConfigurable] = []
-    private var cancellables = Set<AnyCancellable>()
     private var tasks: [Task] = []
     
     var input: TaskTaskViewModelInput { self }
@@ -42,20 +37,34 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         set { }
     }
     
+    //MARK: Combine Subjects
+    private var items = CurrentValueSubject<[AnyCellConfigurable], Never>([])
+    var onTapNextDaySubject = PassthroughSubject<Bool, Never>()
+    var onTapPreviousDaySubject = PassthroughSubject<Bool, Never>()
+    private var cancellables = Set<AnyCancellable>()
+    
     //MARK: Input
-    var onTapNextDay: LoadingCallback?
-    var onTapPrevioussDay: LoadingCallback?
+    var onTapNextDay: AnyPublisher<Bool, Never> { onTapNextDaySubject.eraseToAnyPublisher() }
+    var onTapPrevioussDay: AnyPublisher<Bool, Never> {onTapPreviousDaySubject.eraseToAnyPublisher() }
+    
     
     //MARK: Output
-    var onUpdate: SimpleCallback?
-    var showEmptyView: SimpleCallback?
     var onTapTaskDetail: DemoItemCallback?
     var navigateToDetailView: NavigateToDetail?
-    
+    var snapshotPublisher: AnyPublisher<DataSnapshot, Never> {
+        items.map { items in
+            var snapshot = DataSnapshot()
+            snapshot.appendSections([.Main])
+            snapshot.appendItems(items, toSection: .Main)
+            return snapshot
+        }
+        .receive(on: RunLoop.main)
+        .eraseToAnyPublisher()
+    }
     
     init(task: TaskRepositoryType) {
         self.repo = task
-        processDaySelection()
+        bindDayNavigation()
         processTaskSelection()
     }
     
@@ -65,22 +74,22 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
                 if case .failure(_) = completion {
-                    self.showEmptyView?()
+                    self.items.send([])
                 }
             }, receiveValue: { [weak self] response in
                 guard let self = self else { return }
                 if response.tasks.isEmpty {
-                    self.showEmptyView?()
+                    self.items.send([])
                 } else {
                     self.tasks = response.tasks
-                    self.items = response.tasks.map {
+                    let mapped = response.tasks.map {
                         let demoItem = DemoItem(taskId: $0.id,
                                                 title: $0.title,
                                                 dueDate: $0.dueDate ?? "",
                                                 daysLeft: $0.calculateDaysLeft())
                         return AnyCellConfigurable(demoItem)
                     }
-                    self.onUpdate?()
+                    self.items.send(mapped)
                 }
             })
             .store(in: &cancellables)
@@ -96,30 +105,40 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         }
     }
     
-    private func processDaySelection() {
-        onTapNextDay = {
-            $0 ? self.onUpdate?() :
-            self.showEmptyView?()
-        }
+    private func bindDayNavigation() {
         
-        onTapPrevioussDay = {
-            $0 ? self.onUpdate?() :
-            self.showEmptyView?()
-        }
+        onTapNextDay
+            .sink { [weak self] in
+                guard let self = self else { return }
+                if $0 {
+                    let mapped = self.tasks.map {
+                        let demoItem = DemoItem(taskId: $0.id,
+                                                title: $0.title,
+                                                dueDate: $0.dueDate ?? "",
+                                                daysLeft: $0.calculateDaysLeft())
+                        return AnyCellConfigurable(demoItem)}
+                    self.items.send(mapped)
+                } else {
+                    self.items.send([])
+                }
+            }
+            .store(in: &cancellables)
+        
+        onTapPrevioussDay
+            .sink { [weak self] in
+                guard let self = self else { return }
+                if $0 {
+                    let mapped = self.tasks.map {
+                        let demoItem = DemoItem(taskId: $0.id,
+                                                title: $0.title,
+                                                dueDate: $0.dueDate ?? "",
+                                                daysLeft: $0.calculateDaysLeft())
+                        return AnyCellConfigurable(demoItem)}
+                    self.items.send(mapped)
+                } else {
+                    self.items.send([])
+                }
+            }
+            .store(in: &cancellables)
     }
-    
-    func defaultSnapshot() -> DataSnapshot {
-        var snapshot = DataSnapshot()
-        snapshot.appendSections([.Main])
-        snapshot.appendItems(items, toSection: .Main)
-        return snapshot
-    }
-    
-    func emptySnapshot() -> DataSnapshot {
-        var snapshot = DataSnapshot()
-        snapshot.appendSections([.Main])
-        snapshot.appendItems([], toSection: .Main)
-        return snapshot
-    }
-    
 }
