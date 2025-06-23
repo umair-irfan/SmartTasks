@@ -22,6 +22,7 @@ protocol DetailViewModelType {
 class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewModelType {
     
     private(set) var detailItem: [AnyCellConfigurable] = []
+    private(set) var statusItem: [AnyCellConfigurable] = []
     private(set) var task: Task
     
     var input: DetailViewModelInput { self }
@@ -42,15 +43,22 @@ class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewMo
             AnyCellConfigurable(DetailItem(title: task.title,
                                            dueDate: task.dueDate ?? "",
                                            daysLeft: task.calculateDaysLeft(),
-                                           description: task.description))
+                                           description: task.description,
+                                           status: task.status))
         ]
+        
+        self.statusItem = [
+            AnyCellConfigurable(StatusItem(status: task.status))
+        ]
+        
         self.onUpdate?()
     }
     
     func defaultSnapshot() -> DetailSnapshot {
         var snapshot = DetailSnapshot()
-        snapshot.appendSections([.Main])
+        snapshot.appendSections([.Main, .Status])
         snapshot.appendItems(detailItem, toSection: .Main)
+        snapshot.appendItems(statusItem, toSection: .Status)
         return snapshot
     }
     

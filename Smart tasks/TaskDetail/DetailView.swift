@@ -10,6 +10,7 @@ final class DetailView {
     
     public enum Section {
         case Main
+        case Status
     }
     
     @MainActor
@@ -18,12 +19,13 @@ final class DetailView {
     @MainActor
     public lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.separatorStyle = .none
+        tableView.estimatedRowHeight = 150
+        tableView.backgroundColor = AppColor.background.color
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(DetailsCell.self, forCellReuseIdentifier: DetailsCell.identifier)
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = AppColor.background.color
-        tableView.estimatedRowHeight = 150
-        tableView.rowHeight = UITableView.automaticDimension
+        tableView.register(StatusCell.self, forCellReuseIdentifier: StatusCell.identifier)
         return tableView
     }()
     

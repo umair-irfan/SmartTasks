@@ -39,7 +39,7 @@ struct AnyCellConfigurable: Hashable, @unchecked Sendable {
     }
 }
 
-final class GenericTableViewDataSource<Section: Hashable>: UITableViewDiffableDataSource<Section, AnyCellConfigurable> {
+final class GenericTableViewDataSource<Section: Hashable & Sendable>: UITableViewDiffableDataSource<Section, AnyCellConfigurable> {
     
     init(tableView: UITableView) {
         super.init(tableView: tableView) { tableView, indexPath, item in

@@ -7,22 +7,21 @@
 
 import UIKit
 
-public struct DemoItem: Hashable, @preconcurrency CellConfigurable {
-    
+public struct DemoItem: Hashable, Sendable {
     let id: UUID = UUID()
-    
-    @MainActor
-    var reuseIdentifier: String { TaskCell.identifier }
-    
-    @MainActor
-    func configure(cell: UITableViewCell) {
-        guard let cell = cell as? TaskCell else { return }
-        cell.configure(with: self)
-    }
     let taskId: String
     let title: String
     let dueDate: String
     let daysLeft: String
+}
+
+@MainActor
+extension DemoItem: @preconcurrency CellConfigurable {
+    var reuseIdentifier: String { TaskCell.identifier }
+    func configure(cell: UITableViewCell) {
+        guard let cell = cell as? TaskCell else { return }
+        cell.configure(with: self)
+    }
 }
 
 final class TaskCell: UITableViewCell {

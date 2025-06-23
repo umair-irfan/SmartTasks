@@ -7,23 +7,22 @@
 
 import UIKit
 
-public struct DetailItem: Hashable, @preconcurrency CellConfigurable {
-    
+public struct DetailItem: Hashable, Sendable {
     let id: UUID = UUID()
-    
-    @MainActor
-    var reuseIdentifier: String { DetailsCell.identifier }
-    
-    @MainActor
-    func configure(cell: UITableViewCell) {
-        guard let cell = cell as? DetailsCell else { return }
-        cell.configure(with: self)
-    }
-    
     let title: String
     let dueDate: String
     let daysLeft: String
     let description: String
+    let status: StatusType
+}
+
+@MainActor
+extension DetailItem: @preconcurrency CellConfigurable {
+    var reuseIdentifier: String { DetailsCell.identifier }
+    func configure(cell: UITableViewCell) {
+        guard let cell = cell as? DetailsCell else { return }
+        cell.configure(with: self)
+    }
 }
 
 
@@ -90,7 +89,6 @@ class DetailsCell: UITableViewCell {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.text = "Unresolved"
         label.font = AppFont.bold.getFont(.h2)
         label.textColor = UIColor.orange
         return label
@@ -155,6 +153,26 @@ class DetailsCell: UITableViewCell {
         dueDateLabel.text = item.dueDate
         daysLeftLabel.text = item.daysLeft
         descriptionLabel.text = item.description
+        statusLabel.text = item.status.value
+        setupView(with: item.status)
+    }
+    
+    func setupView(with status: StatusType) {
+        switch status {
+        case .unresolved:
+            return
+        case .resolved:
+            taskTitleLabel.textColor = AppColor.sucess.color
+            dueDateLabel.textColor = AppColor.sucess.color
+            daysLeftLabel.textColor = AppColor.sucess.color
+            statusLabel.textColor = AppColor.sucess.color
+            statusLabel.text = "Resolved"
+        case .cannotResolve:
+            taskTitleLabel.textColor = AppColor.failure.color
+            dueDateLabel.textColor = AppColor.failure.color
+            daysLeftLabel.textColor = AppColor.failure.color
+            statusLabel.textColor = AppColor.failure.color
+        }
     }
     
     private func createSeparator() -> UIView {

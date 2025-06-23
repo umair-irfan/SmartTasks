@@ -5,12 +5,13 @@
 //  Created by Umair on 21/06/2025.
 //
 import UIKit
+import Combine
 
 //MARK: Input
 protocol TaskTaskViewModelInput {
     func loadData()
-    var onTapNextDay: SimpleCallback? { get set }
-    var onTapPrevioussDay: SimpleCallback? { get set }
+    var onTapNextDay: LoadingCallback? { get set }
+    var onTapPrevioussDay: LoadingCallback? { get set }
 }
 
 //MARK: Output
@@ -20,6 +21,7 @@ protocol TaskTaskViewModelOutput {
     func defaultSnapshot()-> DataSnapshot
     var onTapTaskDetail: DemoItemCallback? { get set }
     var navigateToDetailView: NavigateToDetail? { get set }
+    func emptySnapshot() -> DataSnapshot
 }
 
 protocol TaskViewModelType {
@@ -30,7 +32,8 @@ protocol TaskViewModelType {
 class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewModelType {
     
     private(set) var repo: TaskRepositoryType!
-    private(set) var items: [AnyCellConfigurable] = []
+    @Published private(set) var items: [AnyCellConfigurable] = []
+    private var cancellables = Set<AnyCancellable>()
     private var tasks: [Task] = []
     
     var input: TaskTaskViewModelInput { self }
@@ -40,15 +43,15 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     }
     
     //MARK: Input
-    var onTapNextDay: SimpleCallback?
-    var onTapPrevioussDay: SimpleCallback?
+    var onTapNextDay: LoadingCallback?
+    var onTapPrevioussDay: LoadingCallback?
     
     //MARK: Output
     var onUpdate: SimpleCallback?
     var showEmptyView: SimpleCallback?
     var onTapTaskDetail: DemoItemCallback?
     var navigateToDetailView: NavigateToDetail?
-
+    
     
     init(task: TaskRepositoryType) {
         self.repo = task
@@ -57,14 +60,20 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     }
     
     func loadData() {
-        repo.fetchTasks { resposse in
-            switch resposse {
-            case .success(let resp):
-                if resp.tasks.isEmpty {
+        repo.fetchTasks()
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else { return }
+                if case .failure(_) = completion {
+                    self.showEmptyView?()
+                }
+            }, receiveValue: { [weak self] response in
+                guard let self = self else { return }
+                if response.tasks.isEmpty {
                     self.showEmptyView?()
                 } else {
-                    self.tasks = resp.tasks
-                    self.items = resp.tasks.map {
+                    self.tasks = response.tasks
+                    self.items = response.tasks.map {
                         let demoItem = DemoItem(taskId: $0.id,
                                                 title: $0.title,
                                                 dueDate: $0.dueDate ?? "",
@@ -73,10 +82,8 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                     }
                     self.onUpdate?()
                 }
-            case .failure(_):
-                print("Failure")
-            }
-        }
+            })
+            .store(in: &cancellables)
     }
     
     private func processTaskSelection() {
@@ -91,11 +98,13 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     private func processDaySelection() {
         onTapNextDay = {
-            debugPrint("Next Day")
+            $0 ? self.onUpdate?() :
+            self.showEmptyView?()
         }
         
         onTapPrevioussDay = {
-            debugPrint("Previous Day")
+            $0 ? self.onUpdate?() :
+            self.showEmptyView?()
         }
     }
     
@@ -103,6 +112,13 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         var snapshot = DataSnapshot()
         snapshot.appendSections([.Main])
         snapshot.appendItems(items, toSection: .Main)
+        return snapshot
+    }
+    
+    func emptySnapshot() -> DataSnapshot {
+        var snapshot = DataSnapshot()
+        snapshot.appendSections([.Main])
+        snapshot.appendItems([], toSection: .Main)
         return snapshot
     }
     

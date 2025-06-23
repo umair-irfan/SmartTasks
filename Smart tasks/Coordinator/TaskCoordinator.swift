@@ -14,8 +14,6 @@ final class TaskCoordinator: Coordinator<Void> {
     private(set) var repo: TaskRepositoryType!
     private var currentDate: Date = Date()
     private let formatter = DateFormatter()
-    
-   
 
     init(root: UINavigationController,_ taskRepository: TaskRepositoryType) {
         self.navigation = root
@@ -45,16 +43,18 @@ final class TaskCoordinator: Coordinator<Void> {
                                           style: .plain, target: nil, action: nil)
         rightButton.actionHandler = {
             self.currentDate = Calendar.current.date(byAdding: .day, value: 1, to: self.currentDate) ?? self.currentDate
-            vc.navigationItem.title = self.formattedTitle(for: self.currentDate)
-            viewModel.input.onTapNextDay?()
+            let day = self.formattedTitle(for: self.currentDate)
+            vc.navigationItem.title = day.1
+            viewModel.input.onTapNextDay?(day.0)
         }
         NavigationControllerFactory.configureNavigationItem(for: vc, title: "Today",
                                                             showBackButton: true,
                                                             backButtonImage: UIImage(named: "left-arrow"),
                                                             onBack: {
             self.currentDate = Calendar.current.date(byAdding: .day, value: -1, to: self.currentDate) ?? self.currentDate
-            vc.navigationItem.title = self.formattedTitle(for: self.currentDate)
-            viewModel.input.onTapPrevioussDay?()
+            let day = self.formattedTitle(for: self.currentDate)
+            vc.navigationItem.title = day.1
+            viewModel.input.onTapPrevioussDay?(day.0)
         }, rightButton: rightButton)
         self.navigation?.pushViewController(vc, animated: true)
         viewModel.output.navigateToDetailView = { [unowned self] task  in
@@ -62,11 +62,11 @@ final class TaskCoordinator: Coordinator<Void> {
         }
     }
     
-    private func formattedTitle(for date: Date) -> String {
+    private func formattedTitle(for date: Date) -> (Bool,String) {
         if Calendar.current.isDateInToday(date) {
-            return "Today"
+            return (true, "Today")
         } else {
-            return formatter.string(from: date)
+            return (false, formatter.string(from: date))
         }
     }
 

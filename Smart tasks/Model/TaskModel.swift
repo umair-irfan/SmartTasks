@@ -22,6 +22,7 @@ struct Task: Codable, Identifiable {
     let title: String
     let description: String
     let priority: Int?
+    var status: StatusType = .unresolved
 
     enum CodingKeys: String, CodingKey {
         case id = "id"
