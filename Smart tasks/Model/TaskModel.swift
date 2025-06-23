@@ -46,7 +46,7 @@ struct Task: Codable, Identifiable {
     
     func calculateDaysLeft() -> String {
         guard let dueDate,
-              let date = DateFormatter.taskDateFormatter.date(from: dueDate) else {
+              let date = DateFormatter.serverDateFormat.date(from: dueDate) else {
             return ""
         }
 

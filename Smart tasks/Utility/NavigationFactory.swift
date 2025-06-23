@@ -10,6 +10,8 @@ import UIKit
 @MainActor
 class NavigationControllerFactory {
     
+    private static var formatter = DateFormatter.serverDateFormat
+    
     // MARK: - Configure Navigation Item
     
     /// Configures the navigation item of the given view controller
@@ -36,7 +38,7 @@ class NavigationControllerFactory {
                 withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
             )
             let backButton = UIBarButtonItem(image: backImage, style: .plain, target: nil, action: nil)
-            backButton.actionHandler = onBack 
+            backButton.actionHandler = onBack
             viewController.navigationItem.leftBarButtonItem = backButton
         } else {
             viewController.navigationItem.leftBarButtonItem = nil
@@ -81,5 +83,13 @@ class NavigationControllerFactory {
         }
         navigationController.navigationBar.isTranslucent = false
         return navigationController
+    }
+    
+    public class func formattedTitle(for date: Date) -> (Bool,String) {
+        if Calendar.current.isDateInToday(date) {
+            return (true, "Today")
+        } else {
+            return (false, formatter.string(from: date))
+        }
     }
 }

@@ -13,12 +13,10 @@ final class TaskCoordinator: Coordinator<Void> {
     private let navigation: UINavigationController?
     private(set) var repo: TaskRepositoryType!
     private var currentDate: Date = Date()
-    private let formatter = DateFormatter()
 
     init(root: UINavigationController,_ taskRepository: TaskRepositoryType) {
         self.navigation = root
         self.repo = taskRepository
-        self.formatter.dateFormat = "yyyy-MM-dd"
     }
 
     override func start() -> AnyPublisher<Void, CoordinatorError> {
@@ -41,32 +39,28 @@ final class TaskCoordinator: Coordinator<Void> {
         
         let rightButton = UIBarButtonItem(image:  UIImage(named: "right-arrow"),
                                           style: .plain, target: nil, action: nil)
-        rightButton.actionHandler = {
+        rightButton.actionHandler = { [weak self] in
+            guard let self = self else { return }
             self.currentDate = Calendar.current.date(byAdding: .day, value: 1, to: self.currentDate) ?? self.currentDate
-            let day = self.formattedTitle(for: self.currentDate)
+            let day = NavigationControllerFactory.formattedTitle(for: self.currentDate)
             vc.navigationItem.title = day.1
             viewModel.input.onTapNextDaySubject.send(day.0)
         }
+        
         NavigationControllerFactory.configureNavigationItem(for: vc, title: "Today",
                                                             showBackButton: true,
                                                             backButtonImage: UIImage(named: "left-arrow"),
                                                             onBack: {
             self.currentDate = Calendar.current.date(byAdding: .day, value: -1, to: self.currentDate) ?? self.currentDate
-            let day = self.formattedTitle(for: self.currentDate)
+            let day = NavigationControllerFactory.formattedTitle(for: self.currentDate)
             vc.navigationItem.title = day.1
             viewModel.input.onTapPreviousDaySubject.send(day.0)
         }, rightButton: rightButton)
+        
         self.navigation?.pushViewController(vc, animated: true)
+       
         viewModel.output.navigateToDetailView = { [unowned self] task  in
             self.navigateToDetailView(task)
-        }
-    }
-    
-    private func formattedTitle(for date: Date) -> (Bool,String) {
-        if Calendar.current.isDateInToday(date) {
-            return (true, "Today")
-        } else {
-            return (false, formatter.string(from: date))
         }
     }
 
