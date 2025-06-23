@@ -50,14 +50,13 @@ class TaskViewController: UIViewController {
 extension TaskViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         tableView.deselectRow(at: indexPath, animated: true)
         guard let item = taskView.dataSource.itemIdentifier(for: indexPath) else {
             return
         }
-        
         if let task = item.model as? DemoItem {
-            viewModel.output.onTapTaskDetail?(task)
+            viewModel.input.onTapTaskDetailSubject.send(task)
         }
         
     }

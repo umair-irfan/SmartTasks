@@ -13,6 +13,7 @@ final class TaskCoordinator: Coordinator<Void> {
     private let navigation: UINavigationController?
     private(set) var repo: TaskRepositoryType!
     private var currentDate: Date = Date()
+    private var cancellables = Set<AnyCancellable>()
 
     init(root: UINavigationController,_ taskRepository: TaskRepositoryType) {
         self.navigation = root
@@ -33,7 +34,7 @@ final class TaskCoordinator: Coordinator<Void> {
     
     private func showTaskListView() {
         //MARK: ✅ Task Dependecy Injected(into: ViewModel)
-        var viewModel: TaskViewModelType = TaskViewModel(task: self.repo)
+        let viewModel: TaskViewModelType = TaskViewModel(task: self.repo)
         let vc = TaskViewController()
         vc.viewModel = viewModel
         
@@ -59,11 +60,11 @@ final class TaskCoordinator: Coordinator<Void> {
         
         self.navigation?.pushViewController(vc, animated: true)
        
-        viewModel.output.navigateToDetailView = { [unowned self] task  in
+        viewModel.output.navigateToDetailView.sink(receiveCompletion: { _ in },
+                                                   receiveValue: { [unowned self] task  in
             self.navigateToDetailView(task)
-        }
+        }).store(in: &cancellables)
     }
-
     
     private func navigateToDetailView(_ task: Task) {
         let viewModel: DetailViewModelType = DetailViewModel(task: task)

@@ -12,18 +12,18 @@ protocol TaskTaskViewModelInput {
     func loadData()
     var onTapNextDaySubject: PassthroughSubject<Bool, Never> { get }
     var onTapPreviousDaySubject: PassthroughSubject<Bool, Never> { get }
+    var onTapTaskDetailSubject: PassthroughSubject<DemoItem, Never> { get }
 }
 
 //MARK: Output
 protocol TaskTaskViewModelOutput {
     var snapshotPublisher: AnyPublisher<DataSnapshot, Never> { get }
-    var onTapTaskDetail: DemoItemCallback? { get set }
-    var navigateToDetailView: NavigateToDetail? { get set }
+    var navigateToDetailView: AnyPublisher<Task, Never> { get }
 }
 
 protocol TaskViewModelType {
     var input: TaskTaskViewModelInput { get }
-    var output: TaskTaskViewModelOutput { get set }
+    var output: TaskTaskViewModelOutput { get }
 }
 
 class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewModelType {
@@ -32,25 +32,22 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     private var tasks: [Task] = []
     
     var input: TaskTaskViewModelInput { self }
-    var output:  TaskTaskViewModelOutput {
-        get { self }
-        set { }
-    }
+    var output:  TaskTaskViewModelOutput { self }
     
     //MARK: Combine Subjects
     private var items = CurrentValueSubject<[AnyCellConfigurable], Never>([])
     var onTapNextDaySubject = PassthroughSubject<Bool, Never>()
     var onTapPreviousDaySubject = PassthroughSubject<Bool, Never>()
+    var onTapTaskDetailSubject = PassthroughSubject<DemoItem, Never>()
     private var cancellables = Set<AnyCancellable>()
+    private var detailTaskSubject = PassthroughSubject<Task, Never>()
     
     //MARK: Input
     var onTapNextDay: AnyPublisher<Bool, Never> { onTapNextDaySubject.eraseToAnyPublisher() }
     var onTapPrevioussDay: AnyPublisher<Bool, Never> {onTapPreviousDaySubject.eraseToAnyPublisher() }
-    
-    
+
     //MARK: Output
-    var onTapTaskDetail: DemoItemCallback?
-    var navigateToDetailView: NavigateToDetail?
+    var navigateToDetailView: AnyPublisher<Task, Never> { detailTaskSubject.eraseToAnyPublisher() }
     var snapshotPublisher: AnyPublisher<DataSnapshot, Never> {
         items.map { items in
             var snapshot = DataSnapshot()
@@ -65,7 +62,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     init(task: TaskRepositoryType) {
         self.repo = task
         bindDayNavigation()
-        processTaskSelection()
+        bindDetailNavigation()
     }
     
     func loadData() {
@@ -95,14 +92,15 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
             .store(in: &cancellables)
     }
     
-    private func processTaskSelection() {
-        onTapTaskDetail = { task in
+    private func bindDetailNavigation() {
+        onTapTaskDetailSubject.sink(receiveCompletion: {_ in }) { [weak self] task in
+            guard let self = self else { return }
             let selected = self.tasks.filter {
                 return task.taskId == $0.id
             }.first
             guard let selected else { return }
-            self.navigateToDetailView?(selected)
-        }
+            self.detailTaskSubject.send(selected)
+        }.store(in: &cancellables)
     }
     
     private func bindDayNavigation() {
