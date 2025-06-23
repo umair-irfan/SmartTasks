@@ -15,7 +15,7 @@ struct TaskResponse: Codable {
     }
 }
 
-struct Task: Codable, Identifiable {
+struct Task: Identifiable {
     let id: String
     let targetDate: String
     let dueDate: String?
@@ -23,7 +23,26 @@ struct Task: Codable, Identifiable {
     let description: String
     let priority: Int?
     var status: StatusType = .unresolved
+    
+    func calculateDaysLeft() -> String {
+        guard let dueDate,
+              let date = DateFormatter.serverDateFormat.date(from: dueDate) else {
+            return ""
+        }
 
+        let today = Calendar.current.startOfDay(for: Date())
+        let due = Calendar.current.startOfDay(for: date)
+
+        let components = Calendar.current.dateComponents([.day], from: today, to: due)
+        guard let days = components.day else {
+            return ""
+        }
+        return String(days)
+    }
+}
+
+extension Task: Codable {
+    
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case targetDate = "TargetDate"
@@ -43,21 +62,4 @@ struct Task: Codable, Identifiable {
         self.description = try container.decode(String.self, forKey: .description)
         self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
     }
-    
-    func calculateDaysLeft() -> String {
-        guard let dueDate,
-              let date = DateFormatter.serverDateFormat.date(from: dueDate) else {
-            return ""
-        }
-
-        let today = Calendar.current.startOfDay(for: Date())
-        let due = Calendar.current.startOfDay(for: date)
-
-        let components = Calendar.current.dateComponents([.day], from: today, to: due)
-        guard let days = components.day else {
-            return ""
-        }
-        return String(days)
-    }
-
 }

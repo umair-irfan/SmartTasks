@@ -78,14 +78,18 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                 if response.tasks.isEmpty {
                     self.items.send([])
                 } else {
-                    self.tasks = response.tasks
+                    setTasks(with: response.tasks)
                     self.items.send(prioritiseTasks())
                 }
             })
             .store(in: &cancellables)
     }
-    
-    private func prioritiseTasks() -> [AnyCellConfigurable] {
+#if DEBUG
+    func setTasks(with tasks: [Task]) {
+        self.tasks = tasks
+    }
+#endif
+    func prioritiseTasks() -> [AnyCellConfigurable] {
         return tasks.sorted {
             if let firstTaskPriority = $0.priority,
                let secondTaskPriority = $1.priority {
@@ -114,19 +118,25 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     }
     
     private func bindDayNavigation() {
-        
-        onTapNextDay
-            .sink { [weak self] in
+        onTapNextDaySubject
+            .merge(with: onTapPreviousDaySubject)
+            .sink { [weak self] shouldShow in
                 guard let self = self else { return }
-                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
+                shouldShow ? self.items.send(self.prioritiseTasks()) : self.items.send([])
             }
             .store(in: &cancellables)
-        
-        onTapPrevioussDay
-            .sink { [weak self] in
-                guard let self = self else { return }
-                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
-            }
-            .store(in: &cancellables)
+//        onTapNextDay
+//            .sink { [weak self] in
+//                guard let self = self else { return }
+//                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
+//            }
+//            .store(in: &cancellables)
+//        
+//        onTapPrevioussDay
+//            .sink { [weak self] in
+//                guard let self = self else { return }
+//                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
+//            }
+//            .store(in: &cancellables)
     }
 }
