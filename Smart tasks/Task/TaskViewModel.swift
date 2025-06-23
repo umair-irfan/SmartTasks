@@ -68,7 +68,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                         let demoItem = DemoItem(taskId: $0.id,
                                                 title: $0.title,
                                                 dueDate: $0.dueDate ?? "",
-                                                daysLeft: self.calculateDaysLeft(from: $0.dueDate))
+                                                daysLeft: $0.calculateDaysLeft())
                         return AnyCellConfigurable(demoItem)
                     }
                     self.onUpdate?()
@@ -99,22 +99,6 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         }
     }
     
-    private func calculateDaysLeft(from dueDate: String?) -> String {
-        guard let dueDate,
-              let date = DateFormatter.taskDateFormatter.date(from: dueDate) else {
-            return ""
-        }
-
-        let today = Calendar.current.startOfDay(for: Date())
-        let due = Calendar.current.startOfDay(for: date)
-
-        let components = Calendar.current.dateComponents([.day], from: today, to: due)
-        guard let days = components.day else {
-            return ""
-        }
-        return String(days)
-    }
-
     func defaultSnapshot() -> DataSnapshot {
         var snapshot = DataSnapshot()
         snapshot.appendSections([.Main])

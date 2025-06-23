@@ -41,7 +41,7 @@ class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewMo
         self.detailItem = [
             AnyCellConfigurable(DetailItem(title: task.title,
                                            dueDate: task.dueDate ?? "",
-                                           daysLeft: task.targetDate,
+                                           daysLeft: task.calculateDaysLeft(),
                                            description: task.description))
         ]
         self.onUpdate?()

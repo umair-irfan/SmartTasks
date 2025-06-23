@@ -29,13 +29,13 @@ enum AppFontEngine: Int {
         case .h2:
             return 15
         case .b1:
-            return 15
+            return 13
         case .b2:
             return 10
         case .t1:
-            return 15
+            return 12
         case .t2:
-            return 13
+            return 11
         }
     }
     

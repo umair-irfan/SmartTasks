@@ -42,4 +42,21 @@ struct Task: Codable, Identifiable {
         self.description = try container.decode(String.self, forKey: .description)
         self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
     }
+    
+    func calculateDaysLeft() -> String {
+        guard let dueDate,
+              let date = DateFormatter.taskDateFormatter.date(from: dueDate) else {
+            return ""
+        }
+
+        let today = Calendar.current.startOfDay(for: Date())
+        let due = Calendar.current.startOfDay(for: date)
+
+        let components = Calendar.current.dateComponents([.day], from: today, to: due)
+        guard let days = components.day else {
+            return ""
+        }
+        return String(days)
+    }
+
 }

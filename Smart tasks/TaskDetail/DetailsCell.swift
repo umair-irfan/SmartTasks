@@ -67,14 +67,14 @@ class DetailsCell: UITableViewCell {
 
     private let dueDateLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFont.regular.getFont(.b2)
+        label.font = AppFont.bold.getFont(.h2)
         label.textColor = AppColor.primaryText.color
         return label
     }()
 
     private let daysLeftLabel: UILabel = {
         let label = UILabel()
-        label.font = AppFont.regular.getFont(.b2)
+        label.font = AppFont.bold.getFont(.h2)
         label.textColor = AppColor.primaryText.color
         label.textAlignment = .right
         return label
@@ -83,7 +83,7 @@ class DetailsCell: UITableViewCell {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = AppFont.regular.getFont(.b2)
+        label.font = AppFont.regular.getFont(.t1)
         label.textColor = .darkGray
         return label
     }()
@@ -91,7 +91,7 @@ class DetailsCell: UITableViewCell {
     private let statusLabel: UILabel = {
         let label = UILabel()
         label.text = "Unresolved"
-        label.font = AppFont.regular.getFont(.b2)
+        label.font = AppFont.bold.getFont(.h2)
         label.textColor = UIColor.orange
         return label
     }()
@@ -125,9 +125,15 @@ class DetailsCell: UITableViewCell {
         topRow2.axis = .horizontal
 
         cardStack.addArrangedSubview(taskTitleLabel)
+        cardStack.addArrangedSubview(createSeparator())
+        
         cardStack.addArrangedSubview(topRow1)
         cardStack.addArrangedSubview(topRow2)
+        cardStack.addArrangedSubview(createSeparator())
+
         cardStack.addArrangedSubview(descriptionLabel)
+        cardStack.addArrangedSubview(createSeparator())
+        
         cardStack.addArrangedSubview(statusLabel)
 
         backgroundCardImageView.addSubview(cardStack)
@@ -149,6 +155,13 @@ class DetailsCell: UITableViewCell {
         dueDateLabel.text = item.dueDate
         daysLeftLabel.text = item.daysLeft
         descriptionLabel.text = item.description
+    }
+    
+    private func createSeparator() -> UIView {
+        let separator = UIView()
+        separator.backgroundColor = AppColor.seperator.color
+        separator.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        return separator
     }
 }
 
