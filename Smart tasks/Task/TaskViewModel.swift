@@ -7,6 +7,8 @@
 import UIKit
 import Combine
 
+internal typealias TasksSnapshot = NSDiffableDataSourceSnapshot<TaskView.Section, AnyCellConfigurable>
+
 //MARK: Input
 protocol TaskTaskViewModelInput {
     func loadData()

@@ -7,6 +7,8 @@
 import UIKit
 import Combine
 
+internal typealias DetailSnapshot = NSDiffableDataSourceSnapshot<DetailView.Section, AnyCellConfigurable>
+
 protocol DetailViewModelInput {
     func loadData()
 }
