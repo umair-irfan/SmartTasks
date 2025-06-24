@@ -31,3 +31,16 @@ class MockTaskRepository: AppRepository, TaskRepositoryType {
                    .eraseToAnyPublisher()
     }
 }
+
+class UnitMockTaskRepository: TaskRepositoryType {
+    private let tasks: [Task]
+    init(tasks: [Task]) {
+        self.tasks = tasks
+    }
+    
+    func fetchTasks() -> AnyPublisher<TaskResponse, Error> {
+        Just(TaskResponse(tasks: tasks))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+    }
+}

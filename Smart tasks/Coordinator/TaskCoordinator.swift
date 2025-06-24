@@ -45,7 +45,7 @@ final class TaskCoordinator: Coordinator<Void> {
             self.currentDate = Calendar.current.date(byAdding: .day, value: 1, to: self.currentDate) ?? self.currentDate
             let day = NavigationControllerFactory.formattedTitle(for: self.currentDate)
             vc.navigationItem.title = day.1
-            viewModel.input.onTapNextDaySubject.send(day.0)
+            viewModel.input.onTapDaysSubject.send(self.currentDate)
         }
         
         NavigationControllerFactory.configureNavigationItem(for: vc, title: "Today",
@@ -55,7 +55,7 @@ final class TaskCoordinator: Coordinator<Void> {
             self.currentDate = Calendar.current.date(byAdding: .day, value: -1, to: self.currentDate) ?? self.currentDate
             let day = NavigationControllerFactory.formattedTitle(for: self.currentDate)
             vc.navigationItem.title = day.1
-            viewModel.input.onTapPreviousDaySubject.send(day.0)
+            viewModel.input.onTapDaysSubject.send(self.currentDate)
         }, rightButton: rightButton)
         
         self.navigation?.pushViewController(vc, animated: true)

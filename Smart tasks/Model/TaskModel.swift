@@ -29,11 +29,16 @@ struct Task {
               let date = DateFormatter.serverDateFormat.date(from: dueDate) else {
             return ""
         }
+        
+        guard let targDate = DateFormatter.serverDateFormat.date(from: targetDate) else {
+            return ""
+        }
 
-        let today = Calendar.current.startOfDay(for: Date())
+        //let today = Calendar.current.startOfDay(for: Date())
         let due = Calendar.current.startOfDay(for: date)
+        let targ = Calendar.current.startOfDay(for: targDate)
 
-        let components = Calendar.current.dateComponents([.day], from: today, to: due)
+        let components = Calendar.current.dateComponents([.day], from: targ, to: due)
         guard let days = components.day else {
             return ""
         }

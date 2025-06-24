@@ -28,18 +28,18 @@ final class Smart_tasksTests: XCTestCase {
     
     //MARK: Pesudo Test
     func testTaskSortingWithPriorityDueDate() {
-        let task1 = Task(id: "1", targetDate: "2025-07-20", dueDate: "2025-07-20",
+        let task1 = Task(id: "1", targetDate: "2025-07-15", dueDate: "2025-07-20",
                          title: "Low priority", description: "", priority: 1)
-        let task2 = Task(id: "2", targetDate: "2025-07-22", dueDate: "2025-07-22",
+        let task2 = Task(id: "2", targetDate: "2025-07-15", dueDate: "2025-07-22",
                          title: "High priority", description: "", priority: 5)
-        let task3 = Task(id: "3", targetDate: "2025-07-18", dueDate: "2025-07-18",
+        let task3 = Task(id: "3", targetDate: "2025-07-15", dueDate: "2025-07-18",
                          title: "Medium priority", description: "", priority: 3)
         let task4 = Task(id: "4", targetDate: "2025-07-15", dueDate: "2025-07-15",
                          title: "Same priority older", description: "", priority: 3)
         
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2, task3, task4])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-15")
         
         let resultTitles = result.map { ($0.model as? DemoItem)?.title ?? "" }
         XCTAssertEqual(resultTitles, ["High priority", "Same priority older", "Medium priority", "Low priority"])
@@ -49,28 +49,28 @@ final class Smart_tasksTests: XCTestCase {
     func test_PrioritiseTasks_sortsByPriorityDescending() {
         let task1 = Task(id: "1", targetDate: "2025-07-20", dueDate: "2025-07-20",
                          title: "Low" , description: "", priority: 1)
-        let task2 = Task(id: "2", targetDate: "2025-07-22", dueDate: "2025-07-22",
+        let task2 = Task(id: "2", targetDate: "2025-07-20", dueDate: "2025-07-22",
                          title: "High", description: "", priority: 5)
-        let task3 = Task(id: "3", targetDate: "2025-07-18", dueDate: "2025-07-18",
+        let task3 = Task(id: "3", targetDate: "2025-07-20", dueDate: "2025-07-18",
                          title: "Medium", description: "", priority: 3)
 
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2, task3])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-20")
 
         XCTAssertEqual(result.map { ($0.model as? DemoItem)?.taskId }, [task2.id, task3.id, task1.id])
     }
     
     //MARK: Same Priority, Sorted by Due Date Ascending
     func test_PrioritiseTasks_sortsByDueDateIfPriorityEqual() {
-        let task1 = Task(id: "1",targetDate: "2025-07-15",  dueDate: "2025-07-15",
+        let task1 = Task(id: "1",targetDate: "2025-07-18",  dueDate: "2025-07-15",
                          title: "Task1", description: "", priority: 3)
         let task2 = Task(id: "2",  targetDate: "2025-07-18", dueDate: "2025-07-18",
                          title: "Task2", description: "", priority: 3)
 
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-18")
 
         XCTAssertEqual(result.map { ($0.model as? DemoItem)?.taskId }, [task1.id, task2.id])
     }
@@ -79,26 +79,26 @@ final class Smart_tasksTests: XCTestCase {
     func test_PrioritiseTasks_handlesMissingPriority() {
         let task1 = Task(id: "1", targetDate: "2025-07-20",dueDate: "2025-07-20",
                          title: "No priority", description: "", priority: nil)
-        let task2 = Task(id: "2", targetDate: "2025-07-22",  dueDate: "2025-07-22",
+        let task2 = Task(id: "2", targetDate: "2025-07-20",  dueDate: "2025-07-22",
                          title: "High",description: "" , priority: 5)
         
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-20")
        
         XCTAssertEqual((result.first?.model as? DemoItem)?.taskId, task2.id)
     }
 
     //MARK: Missing Due Dates
     func test_PrioritiseTasks_handlesMissingDueDates() {
-        let task1 = Task(id: "1", targetDate: "2025-07-20", dueDate: nil,
+        let task1 = Task(id: "1", targetDate: "2025-07-22", dueDate: nil,
                          title: "No date", description: "", priority: 2)
         let task2 = Task(id: "2", targetDate: "2025-07-22", dueDate: "2025-07-19",
                          title: "With date", description: "", priority: 2)
 
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-22")
         
         XCTAssertEqual((result.first?.model as? DemoItem)?.taskId, task2.id)
     }
@@ -113,7 +113,7 @@ final class Smart_tasksTests: XCTestCase {
 
         let SUT = TaskViewModel(task: MockTaskRepository())
         SUT.setTasks(with: [task1, task2])
-        let result = SUT.prioritiseTasks()
+        let result = SUT.prioritiseTasks(with: "2025-07-20")
 
         XCTAssertEqual(result.map { ($0.model as? DemoItem)?.taskId }, [task1.id, task2.id])
     }

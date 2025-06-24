@@ -10,8 +10,7 @@ import Combine
 //MARK: Input
 protocol TaskTaskViewModelInput {
     func loadData()
-    var onTapNextDaySubject: PassthroughSubject<Bool, Never> { get }
-    var onTapPreviousDaySubject: PassthroughSubject<Bool, Never> { get }
+    var onTapDaysSubject: PassthroughSubject<Date, Never> { get }
     var onTapTaskDetailSubject: PassthroughSubject<DemoItem, Never> { get }
 }
 
@@ -36,15 +35,13 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     
     //MARK: Combine Subjects
     private var items = CurrentValueSubject<[AnyCellConfigurable], Never>([])
-    var onTapNextDaySubject = PassthroughSubject<Bool, Never>()
-    var onTapPreviousDaySubject = PassthroughSubject<Bool, Never>()
+    var onTapDaysSubject = PassthroughSubject<Date, Never>()
     var onTapTaskDetailSubject = PassthroughSubject<DemoItem, Never>()
     private var cancellables = Set<AnyCancellable>()
     private var detailTaskSubject = PassthroughSubject<Task, Never>()
     
     //MARK: Input
-    var onTapNextDay: AnyPublisher<Bool, Never> { onTapNextDaySubject.eraseToAnyPublisher() }
-    var onTapPrevioussDay: AnyPublisher<Bool, Never> {onTapPreviousDaySubject.eraseToAnyPublisher() }
+    var onTapDay: AnyPublisher<Date, Never> { onTapDaysSubject.eraseToAnyPublisher() }
 
     //MARK: Output
     var navigateToDetailView: AnyPublisher<Task, Never> { detailTaskSubject.eraseToAnyPublisher() }
@@ -84,20 +81,22 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
             })
             .store(in: &cancellables)
     }
-#if DEBUG
-    func setTasks(with tasks: [Task]) {
-        self.tasks = tasks
-    }
-#endif
-    func prioritiseTasks() -> [AnyCellConfigurable] {
-        return tasks.sorted {
+
+    func prioritiseTasks(with today:
+                         String = DateFormatter.serverDateFormat.string(from: Date())) -> [AnyCellConfigurable] {
+        return tasks.filter{ task in
+            //MARK: Filter the Task based on Current Day
+            return today == task.targetDate
+        }.sorted {
+            //MARK: Sort the Task based on Priority & Due Date
             if let firstTaskPriority = $0.priority,
                let secondTaskPriority = $1.priority {
                 return firstTaskPriority == secondTaskPriority ?
                 $0.dueDate ?? "" < $1.dueDate ?? "" : firstTaskPriority > secondTaskPriority
             }
             return 1 > 0
-        }.map {
+        }
+        .map {
             let demoItem = DemoItem(taskId: $0.id,
                                     title: $0.title,
                                     dueDate: $0.dueDate ?? "",
@@ -118,25 +117,16 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     }
     
     private func bindDayNavigation() {
-        onTapNextDaySubject
-            .merge(with: onTapPreviousDaySubject)
-            .sink { [weak self] shouldShow in
+        onTapDaysSubject
+            .sink { [weak self] date in
                 guard let self = self else { return }
-                shouldShow ? self.items.send(self.prioritiseTasks()) : self.items.send([])
+                let convertedDate = DateFormatter.serverDateFormat.string(from: date)
+                self.items.send(self.prioritiseTasks(with: convertedDate))
             }
             .store(in: &cancellables)
-//        onTapNextDay
-//            .sink { [weak self] in
-//                guard let self = self else { return }
-//                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
-//            }
-//            .store(in: &cancellables)
-//        
-//        onTapPrevioussDay
-//            .sink { [weak self] in
-//                guard let self = self else { return }
-//                $0 ? self.items.send(prioritiseTasks()) : self.items.send([])
-//            }
-//            .store(in: &cancellables)
+    }
+    
+    func setTasks(with tasks: [Task]) {
+        self.tasks = tasks
     }
 }
