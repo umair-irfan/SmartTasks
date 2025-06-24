@@ -25,7 +25,7 @@ enum StatusType: CaseIterable {
     }
 }
 
-public struct StatusItem: Hashable, Sendable{
+public struct StatusItem: Hashable, Sendable {
     let id: UUID = UUID()
     var status: StatusType
 }
@@ -143,11 +143,11 @@ class StatusCell: UITableViewCell {
     
     @objc
     private func didTapResolved(_ sender: UIButton) {
-        
+        GlobalEvent.Application.TaskStatusUpdate.post(with: StatusType.resolved)
     }
     
     @objc
     private func didTapCannotResolve(_ sender: UIButton) {
-        
+        GlobalEvent.Application.TaskStatusUpdate.post(with: StatusType.cannotResolve)
     }
 }

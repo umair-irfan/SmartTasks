@@ -17,7 +17,7 @@ protocol TaskTaskViewModelInput {
 
 //MARK: Output
 protocol TaskTaskViewModelOutput {
-    var snapshotPublisher: AnyPublisher<DataSnapshot, Never> { get }
+    var snapshotPublisher: AnyPublisher<TasksSnapshot, Never> { get }
     var navigateToDetailView: AnyPublisher<Task, Never> { get }
 }
 
@@ -48,9 +48,9 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
 
     //MARK: Output
     var navigateToDetailView: AnyPublisher<Task, Never> { detailTaskSubject.eraseToAnyPublisher() }
-    var snapshotPublisher: AnyPublisher<DataSnapshot, Never> {
+    var snapshotPublisher: AnyPublisher<TasksSnapshot, Never> {
         items.map { items in
-            var snapshot = DataSnapshot()
+            var snapshot = TasksSnapshot()
             snapshot.appendSections([.Main])
             snapshot.appendItems(items, toSection: .Main)
             return snapshot

@@ -15,7 +15,7 @@ struct TaskResponse: Codable {
     }
 }
 
-struct Task: Identifiable {
+struct Task {
     let id: String
     let targetDate: String
     let dueDate: String?
@@ -41,7 +41,7 @@ struct Task: Identifiable {
     }
 }
 
-extension Task: Codable {
+extension Task: Codable, Identifiable {
     
     enum CodingKeys: String, CodingKey {
         case id = "id"

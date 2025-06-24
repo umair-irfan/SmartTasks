@@ -4,62 +4,69 @@
 //
 //  Created by Umair on 22/06/2025.
 //
+import UIKit
+import Combine
 
 protocol DetailViewModelInput {
     func loadData()
 }
 
 protocol DetailViewModelOutput {
-    var onUpdate: SimpleCallback? { get set }
-    func defaultSnapshot() -> DetailSnapshot
+    var snapshotPublisher: AnyPublisher<DetailSnapshot, Never> { get }
 }
 
 protocol DetailViewModelType {
     var input: DetailViewModelInput { get }
-    var output: DetailViewModelOutput { get set }
+    var output: DetailViewModelOutput { get }
 }
 
 class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewModelType {
     
-    private(set) var detailItem: [AnyCellConfigurable] = []
-    private(set) var statusItem: [AnyCellConfigurable] = []
+    private var detailItem = CurrentValueSubject<[AnyCellConfigurable], Never>([])
+    private var statusItem = CurrentValueSubject<[AnyCellConfigurable], Never>([])
+    
     private(set) var task: Task
+    let statusUpdate = GlobalEvent.Application.TaskStatusUpdate.observe()
+    private var cancellables = Set<AnyCancellable>()
     
     var input: DetailViewModelInput { self }
-    var output:  DetailViewModelOutput {
-        get { self }
-        set { }
-    }
+    var output:  DetailViewModelOutput { self }
     
     //MARK: Output
-    var onUpdate: SimpleCallback?
+    var snapshotPublisher: AnyPublisher<DetailSnapshot, Never> {
+        Publishers.CombineLatest(detailItem, statusItem)
+            .map { detailItems, statusItems in
+                var snapshot = DetailSnapshot()
+                snapshot.appendSections([.Main, .Status])
+                snapshot.appendItems(detailItems, toSection: .Main)
+                snapshot.appendItems(statusItems, toSection: .Status)
+                return snapshot
+            }
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
+    }
     
     init(task: Task) {
         self.task = task
+        bindStatusUpdate()
     }
     
     func loadData() {
-        self.detailItem = [
-            AnyCellConfigurable(DetailItem(title: task.title,
-                                           dueDate: task.dueDate ?? "",
-                                           daysLeft: task.calculateDaysLeft(),
-                                           description: task.description,
-                                           status: task.status))
-        ]
-        
-        self.statusItem = [
-            AnyCellConfigurable(StatusItem(status: task.status))
-        ]
-        
-        self.onUpdate?()
+        let input = AnyCellConfigurable(DetailItem(title: task.title,
+                                                   dueDate: task.dueDate ?? "",
+                                                   daysLeft: task.calculateDaysLeft(),
+                                                   description: task.description,
+                                                   status: task.status))
+        self.detailItem.send([input])
+        self.statusItem.send([AnyCellConfigurable(StatusItem(status: task.status))])
     }
     
-    func defaultSnapshot() -> DetailSnapshot {
-        var snapshot = DetailSnapshot()
-        snapshot.appendSections([.Main, .Status])
-        snapshot.appendItems(detailItem, toSection: .Main)
-        snapshot.appendItems(statusItem, toSection: .Status)
-        return snapshot
+    func bindStatusUpdate() {
+        statusUpdate.sink(receiveCompletion: { _ in }, receiveValue: { item in
+            if let status = item.object as? StatusType {
+                self.task.status = status
+                self.loadData()
+            }
+        }).store(in: &cancellables)
     }
-    
 }
