@@ -1,14 +1,5 @@
 # Smart Tasks
-> Smart Tasks is an iOS task management application designed for employees to track and update daily work tasks provided by their manager. 
-
-[![Swift Version][swift-image]][swift-url]
-[![Build Status][travis-image]][travis-url]
-[![License][license-image]][license-url]
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/EZSwiftExtensions.svg)](https://img.shields.io/cocoapods/v/LFAlertController.svg)  
-[![Platform](https://img.shields.io/cocoapods/p/LFAlertController.svg?style=flat)](http://cocoapods.org/pods/LFAlertController)
-
-The app supports day-to-day task viewing, prioritization, status updates, and commenting.
+> Smart Tasks is an iOS task management application designed for employees to track and update daily work tasks provided by their manager. The app supports day-to-day task viewing, prioritization, status updates, and commenting.
 
 ![](header.png)
 
