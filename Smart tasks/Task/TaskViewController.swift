@@ -18,6 +18,10 @@ class TaskViewController: UIViewController {
         super.viewDidLoad()
         setupView()
         bindViewModel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         viewModel.input.loadData()
     }
     

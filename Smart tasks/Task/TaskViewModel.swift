@@ -41,6 +41,7 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
     var onTapTaskDetailSubject = PassthroughSubject<DemoItem, Never>()
     private var cancellables = Set<AnyCancellable>()
     private var detailTaskSubject = PassthroughSubject<Task, Never>()
+    private var selectedDay: String = String()
     
     //MARK: Input
     var onTapDay: AnyPublisher<Date, Never> { onTapDaysSubject.eraseToAnyPublisher() }
@@ -78,7 +79,8 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
                     self.items.send([])
                 } else {
                     setTasks(with: response.tasks)
-                    self.items.send(prioritiseTasks())
+                    self.selectedDay.isEmpty ? self.items.send(prioritiseTasks()) :
+                    self.items.send(prioritiseTasks(with: self.selectedDay))
                 }
             })
             .store(in: &cancellables)
@@ -122,8 +124,8 @@ class TaskViewModel: TaskTaskViewModelInput, TaskTaskViewModelOutput, TaskViewMo
         onTapDaysSubject
             .sink { [weak self] date in
                 guard let self = self else { return }
-                let convertedDate = DateFormatter.serverDateFormat.string(from: date)
-                self.items.send(self.prioritiseTasks(with: convertedDate))
+                self.selectedDay = DateFormatter.serverDateFormat.string(from: date)
+                self.items.send(self.prioritiseTasks(with: self.selectedDay))
             }
             .store(in: &cancellables)
     }

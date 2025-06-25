@@ -8,7 +8,7 @@
 import Foundation
 
 struct TaskResponse: Codable {
-    let tasks: [Task]
+    var tasks: [Task]
 
     enum CodingKeys: String, CodingKey {
         case tasks
@@ -22,7 +22,11 @@ struct Task {
     let title: String
     let description: String
     let priority: Int?
-    var status: StatusType = .unresolved
+    var status: StatusType
+    
+    mutating func updateTaskStatus(with status: StatusType)  {
+        self.status = status
+    }
     
     func calculateDaysLeft() -> String {
         guard let dueDate,
@@ -55,6 +59,7 @@ extension Task: Codable, Identifiable {
         case title = "Title"
         case description = "Description"
         case priority = "Priority"
+        case status = "kLocalStatus"
     }
 
     init(from decoder: Decoder) throws {
@@ -66,5 +71,6 @@ extension Task: Codable, Identifiable {
         self.title = try container.decode(String.self, forKey: .title)
         self.description = try container.decode(String.self, forKey: .description)
         self.priority = try container.decodeIfPresent(Int.self, forKey: .priority)
+        self.status = try container.decodeIfPresent(StatusType.self, forKey: .status) ?? .unresolved
     }
 }

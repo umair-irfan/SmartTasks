@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum StatusType: CaseIterable {
+enum StatusType: Codable, CaseIterable {
     
     case unresolved
     case resolved

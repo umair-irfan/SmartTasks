@@ -64,11 +64,16 @@ class DetailViewModel: DetailViewModelInput, DetailViewModelOutput, DetailViewMo
     }
     
     func bindStatusUpdate() {
-        statusUpdate.sink(receiveCompletion: { _ in }, receiveValue: { item in
+        statusUpdate.sink(receiveCompletion: { _ in },
+                          receiveValue: { [weak self] item in
+            guard let self = self else { return }
             if let status = item.object as? StatusType {
-                self.task.status = status
+                //MARK: Update Task Status
+                task.updateTaskStatus(with: status)
+                UserDefaults.local.tasks.saveOrUpdate(task)
                 self.loadData()
             }
-        }).store(in: &cancellables)
+        })
+        .store(in: &cancellables)
     }
 }

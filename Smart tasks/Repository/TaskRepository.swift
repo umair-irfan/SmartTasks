@@ -25,22 +25,32 @@ class TaskRepository: TaskRepositoryType {
 }
 
 class MockTaskRepository: AppRepository, TaskRepositoryType {
-    func fetchTasks() -> AnyPublisher<TaskResponse, Error> {
-        return mock.loadJson(file: "task_response")
-                   .receive(on: DispatchQueue.main)
-                   .eraseToAnyPublisher()
-    }
-}
-
-class UnitMockTaskRepository: TaskRepositoryType {
-    private let tasks: [Task]
-    init(tasks: [Task]) {
-        self.tasks = tasks
-    }
+    
+    private var cancellables = Set<AnyCancellable>()
     
     func fetchTasks() -> AnyPublisher<TaskResponse, Error> {
-        Just(TaskResponse(tasks: tasks))
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
+        return Future<TaskResponse, Error> { [weak self] promise in
+            
+            guard let self = self else {
+                promise(.failure(NSError()))
+                return
+            }
+            let result: AnyPublisher<TaskResponse, Error> = mock.loadJson(file: "task_response")
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+            result.sink(receiveCompletion: { _  in }, receiveValue: { response in
+                var modifiedResponse = response
+                let localTasks = UserDefaults.local.tasks.array()
+                modifiedResponse.tasks = response.tasks.map { task in
+                    var updatedTask = task
+                    if let local = localTasks.first(where: { $0.id == task.id }) {
+                        updatedTask.status = local.status
+                        return updatedTask
+                    }
+                    return updatedTask
+                }
+                promise(.success(modifiedResponse))
+            }).store(in: &cancellables)
+        }.eraseToAnyPublisher()
     }
 }
