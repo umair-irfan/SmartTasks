@@ -121,7 +121,8 @@ final class TaskCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = UIColor(red: 1.0, green: 0.88, blue: 0.4, alpha: 1.0) // #FFE066
         selectionStyle = .none
-        setupLayout()
+        addSubViews()
+        setupConstraints()
     }
     
     required init?(coder: NSCoder) {
@@ -134,41 +135,37 @@ final class TaskCell: UITableViewCell {
         daysLeftValueLabel.text = item.daysLeft
     }
     
+    private func addSubViews() {
+        contentView.addSubview(cardView)
+        [title,seperator,horizontalStack].forEach(cardView.addSubview(_:))
+        [dueDateLabel,dueDateValue].forEach(leftStack.addArrangedSubview(_:))
+        [daysLeftLabel,daysLeftValueLabel].forEach(rightStack.addArrangedSubview(_:))
+        [leftStack,rightStack].forEach(horizontalStack.addArrangedSubview(_:))
+    }
+    
     // MARK: - Layout
-    private func setupLayout() {
-            contentView.addSubview(cardView)
-            cardView.addSubview(title)
-            cardView.addSubview(seperator)
-            cardView.addSubview(horizontalStack)
-
-            leftStack.addArrangedSubview(dueDateLabel)
-            leftStack.addArrangedSubview(dueDateValue)
-
-            rightStack.addArrangedSubview(daysLeftLabel)
-            rightStack.addArrangedSubview(daysLeftValueLabel)
-
-            horizontalStack.addArrangedSubview(leftStack)
-            horizontalStack.addArrangedSubview(rightStack)
-
-            NSLayoutConstraint.activate([
-                cardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-                cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-                cardView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
-
-                title.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 10),
-                title.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
-                title.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10),
-
-                seperator.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 7),
-                seperator.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
-                seperator.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10),
-                seperator.heightAnchor.constraint(equalToConstant: 1),
-
-                horizontalStack.topAnchor.constraint(equalTo: seperator.bottomAnchor, constant: 7),
-                horizontalStack.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 10),
-                horizontalStack.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -10),
-                horizontalStack.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -10)
-            ])
-        }
+    private func setupConstraints() {
+        cardView
+            .alignEdge(.top, withView: contentView, constant: 5)
+            .alignEdge(.left, withView: contentView, constant: 10)
+            .alignEdge(.right, withView: contentView, constant: 10)
+            .alignEdge(.bottom, withView: contentView, constant: 5)
+        
+        title
+            .alignEdge(.top, withView: cardView, constant: 10)
+            .alignEdge(.left, withView: cardView, constant: 10)
+            .alignEdge(.right, withView: cardView, constant: 10)
+        
+        seperator
+            .pinEdge(.top, toEdge: .bottom, ofView: title, constant: 7)
+            .alignEdge(.left, withView: cardView, constant: 10)
+            .alignEdge(.right, withView: cardView, constant: 10)
+            .height(constant: 1)
+        
+        horizontalStack
+            .pinEdge(.top, toEdge: .bottom, ofView: seperator, constant: 7)
+            .alignEdge(.left, withView: cardView, constant: 10)
+            .alignEdge(.right, withView: cardView, constant: 10)
+            .alignEdge(.bottom, withView: cardView, constant: 10)
+    }
 }

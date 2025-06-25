@@ -70,24 +70,17 @@ class StatusCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
         selectionStyle = .none
-        
+        addSubViews()
+        setupConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func addSubViews() {
         contentView.addSubview(statusImage)
         contentView.addSubview(buttonStackView)
-        
-        NSLayoutConstraint.activate([
-            buttonStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            buttonStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            buttonStackView.heightAnchor.constraint(equalToConstant: 45.0),
-            buttonStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            buttonStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
-        ])
-        
-        NSLayoutConstraint.activate([
-            statusImage.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            statusImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 32),
-            statusImage.widthAnchor.constraint(equalToConstant: 100),
-            statusImage.heightAnchor.constraint(equalToConstant: 100)
-        ])
         
         StatusType.allCases.forEach { status in
             switch status {
@@ -114,12 +107,23 @@ class StatusCell: UITableViewCell {
                 buttonStackView.addArrangedSubview(button)
                 button.addTarget(self, action: #selector(didTapCannotResolve(_:)), for: .touchUpInside)
             }
-            
         }
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    // MARK: - Layout
+    private func setupConstraints() {
+        buttonStackView
+            .alignEdge(.top, withView: contentView, constant: 35)
+            .alignEdge(.left, withView: contentView)
+            .alignEdge(.right, withView: contentView)
+            .alignEdge(.bottom, withView: contentView)
+            .height(constant: 45)
+        
+        statusImage
+            .horizontallyCenterWith(contentView)
+            .alignEdge(.top, withView: contentView, constant: 35)
+            .width(constant: 100)
+            .height(constant: 100)
     }
     
     func configure(with item: StatusItem) {

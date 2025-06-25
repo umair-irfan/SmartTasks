@@ -37,6 +37,7 @@ class DetailsCell: UITableViewCell {
         imageView.contentMode = .scaleToFill
         imageView.layer.cornerRadius = 5
         imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
@@ -94,59 +95,51 @@ class DetailsCell: UITableViewCell {
         return label
     }()
 
-    private let cardStack = UIStackView()
+    private let cardStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.layoutMargins = UIEdgeInsets(top: 48, left: 16, bottom: 16, right: 16)
+        return stack
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
         selectionStyle = .none
-
-        contentView.addSubview(backgroundCardImageView)
-        backgroundCardImageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            backgroundCardImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            backgroundCardImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            backgroundCardImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            backgroundCardImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
-        ])
-
-        cardStack.axis = .vertical
-        cardStack.spacing = 10
-        cardStack.translatesAutoresizingMaskIntoConstraints = false
-        cardStack.isLayoutMarginsRelativeArrangement = true
-        cardStack.layoutMargins = UIEdgeInsets(top: 48, left: 16, bottom: 16, right: 16)
-
-        let topRow1 = UIStackView(arrangedSubviews: [dueDateTitleLabel, UIView(), daysLeftTitleLabel])
-        topRow1.axis = .horizontal
-
-        let topRow2 = UIStackView(arrangedSubviews: [dueDateLabel, UIView(), daysLeftLabel])
-        topRow2.axis = .horizontal
-
-        cardStack.addArrangedSubview(taskTitleLabel)
-        cardStack.addArrangedSubview(createSeparator())
-        
-        cardStack.addArrangedSubview(topRow1)
-        cardStack.addArrangedSubview(topRow2)
-        cardStack.addArrangedSubview(createSeparator())
-
-        cardStack.addArrangedSubview(descriptionLabel)
-        cardStack.addArrangedSubview(createSeparator())
-        
-        cardStack.addArrangedSubview(statusLabel)
-
-        backgroundCardImageView.addSubview(cardStack)
-        NSLayoutConstraint.activate([
-            cardStack.topAnchor.constraint(equalTo: backgroundCardImageView.topAnchor),
-            cardStack.leadingAnchor.constraint(equalTo: backgroundCardImageView.leadingAnchor),
-            cardStack.trailingAnchor.constraint(equalTo: backgroundCardImageView.trailingAnchor),
-            cardStack.bottomAnchor.constraint(equalTo: backgroundCardImageView.bottomAnchor)
-        ])
+        addSubViews()
+        setupConstraints()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private func addSubViews(){
+        contentView.addSubview(backgroundCardImageView)
+       
+        let topRow1 = UIStackView(arrangedSubviews: [dueDateTitleLabel, UIView(), daysLeftTitleLabel])
+        topRow1.axis = .horizontal
+        let topRow2 = UIStackView(arrangedSubviews: [dueDateLabel, UIView(), daysLeftLabel])
+        topRow2.axis = .horizontal
 
+        [taskTitleLabel,createSeparator(),topRow1, topRow2, createSeparator(),descriptionLabel,
+         createSeparator(), statusLabel].forEach(cardStack.addArrangedSubview(_:))
+
+        backgroundCardImageView.addSubview(cardStack)
+    }
+    
+    // MARK: - Layout
+    private func setupConstraints() {
+        backgroundCardImageView.alignEdgesWithSuperview( [.top, .left, .right, .bottom],
+                                                         constants: [12, 0, 0, -12])
+        cardStack.alignEdges(
+            [.top, .left, .right, .bottom],
+            withView: backgroundCardImageView
+        )
+    }
     
     func configure(with item: DetailItem) {
         taskTitleLabel.text = item.title
