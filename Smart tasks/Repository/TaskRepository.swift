@@ -13,14 +13,44 @@ protocol TaskRepositoryType {
     func fetchTasks() -> AnyPublisher<TaskResponse, Error>
 }
 
+extension TaskRepositoryType {
+    func syncLocalTaskStatus() { }
+}
+
 class TaskRepository: TaskRepositoryType {
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     func fetchTasks() -> AnyPublisher<TaskResponse, Error> {
-        let url = URL(string: "http://demo3809319.mockable.io/")!
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .map(\.data)
-            .decode(type: TaskResponse.self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+        return Future<TaskResponse, Error> { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(NSError()))
+                return
+            }
+            let url = URL(string: "http://demo3809319.mockable.io/")!
+            let result = URLSession.shared.dataTaskPublisher(for: url)
+                .map(\.data)
+                .decode(type: TaskResponse.self, decoder: JSONDecoder())
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+            result.sink(receiveCompletion: { _  in }, receiveValue: { response in
+                var modifiedResponse = response
+                let localTasks = UserDefaults.local.tasks.array()
+                modifiedResponse.tasks = response.tasks.map { task in
+                    var updatedTask = task
+                    if let local = localTasks.first(where: { $0.id == task.id }) {
+                        updatedTask.status = local.status
+                        return updatedTask
+                    }
+                    return updatedTask
+                }
+                promise(.success(modifiedResponse))
+            }).store(in: &cancellables)
+        }.eraseToAnyPublisher()
+    }
+    
+    func syncLocalTaskStatus() {
+        
     }
 }
 

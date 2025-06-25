@@ -44,7 +44,7 @@ class TaskViewController: UIViewController {
                     self.taskView.dataSource.apply(snapshot, animatingDifferences: true)
                     return
                 }
-                self.taskView.dataSource.apply(snapshot, animatingDifferences: true)
+                self.taskView.dataSource.apply(snapshot, animatingDifferences: false)
                 self.taskView.tableView.restore()
             }
             .store(in: &cancellables)

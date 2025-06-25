@@ -34,7 +34,7 @@ class DetailViewController: UIViewController {
                     self.detailView.dataSource.apply(snapshot, animatingDifferences: true)
                     return
                 }
-                self.detailView.dataSource.apply(snapshot, animatingDifferences: true)
+                self.detailView.dataSource.apply(snapshot, animatingDifferences: false)
                 self.detailView.tableView.restore()
             }
             .store(in: &cancellables)
